@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import { getDefaultProvider } from "ethers";
 import { isTestnet, wallet } from "../config/constants";
+import { ethers } from "ethers";
 
 const {
   utils: { deployContract },
@@ -59,7 +60,7 @@ async function main() {
 
   await (await moonbeamMarketplace.createToken('https://api.npoint.io/efaecf7cee7cfe142516')).wait(1);
   console.log('Minted nft in Moonbeam');
-  await (await moonbeamMarketplace.setListToken(1, BigInt(1000000000000000000))).wait(1);
+  await (await moonbeamMarketplace.setListToken(1, ethers.utils.parseUnits('0.1', 6))).wait(1);
   console.log('Listed nft in Moonbeam');
   // set nftMarketplace on MessageReceiver
   await (await moonbeamReceiver.setMarketplace(moonbeamMarketplace.address)).wait(1);
@@ -104,7 +105,7 @@ async function main() {
 
   await (await avalancheMarketplace.createToken('https://api.npoint.io/7a8a7902a4ee5625dec2')).wait(1);
   console.log('Minted nft in Avalanche');
-  await (await avalancheMarketplace.setListToken(1, BigInt(1000000000000000000))).wait(1);
+  await (await avalancheMarketplace.setListToken(1, ethers.utils.parseUnits('0.1', 6))).wait(1);
   console.log('Listed nft in Avalanche');
   // set nftMarketplace on MessageReceiver
   await (await avalancheReceiver.setMarketplace(avalancheMarketplace.address)).wait(1);

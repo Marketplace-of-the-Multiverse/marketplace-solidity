@@ -18,8 +18,8 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
     //owner is the contract address that created the smart contract
     address payable owner;
     //The fee charged by the marketplace to be allowed to list an NFT
-    uint256 listPrice = 0.05 ether;
-    uint256 floorPrice = 0.1 ether;
+    uint256 listPrice = 0.05 * (10 ** 6);
+    uint256 floorPrice = 0.1 * (10 ** 6);
     // store axelar receiver address (for execution verification)
     address operator;
 
@@ -48,9 +48,6 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
     //This mapping maps tokenId to token info and is helpful when retrieving details about a tokenId
     mapping(uint256 => ListedToken) private idToListedToken;
 
-    // store user balances here
-    mapping(address => uint256) balances;
-
     address receivingToken;
 
     constructor(address _operator, address _receivingToken) ERC721("NFTMarketplace", "NFTM") {
@@ -65,15 +62,6 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
         return receivingToken;
     }
 
-    function addFund(address recipient, uint256 amount) public {
-        require(operator == msg.sender, "Only operator can update balances");
-        balances[recipient] += amount;
-    }
-
-    function checkFund(address recipient) public view returns (uint256) {
-        return balances[recipient];
-    }
-
     // function updateOperator(address _operator) public payable {
     function updateReceivingToken(address _receivingToken) public {
         require(owner == msg.sender, "Only owner can update receiving token");
@@ -82,6 +70,10 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
 
     function getOperator() public view returns (address) {
         return operator;
+    }
+
+    function getOwner() public view returns (address) {
+        return owner;
     }
 
     // function updateOperator(address _operator) public payable {
@@ -147,8 +139,7 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
         //Just sanity check
         // require(price > 0, "Make sure the price isn't negative");
 
-        address seller;
-        seller = msg.sender;
+        address seller = msg.sender;
 
         //Update the mapping of tokenId's to Token details, useful for retrieval functions
         idToListedToken[tokenId] = ListedToken(
@@ -163,14 +154,13 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
     }
 
     function setListToken(uint256 tokenId, uint256 price) public {
-        //Make sure the sender sent enough ETH to pay for listing
-        require(price >= listPrice, "You need to include listing price in tx");
         //Just sanity check
         require(price > 0, "Make sure the price isn't negative");
+        //Make sure the sender sent enough ETH to pay for listing
+        require(price >= listPrice, "You need to include listing price in tx");
 
         // seller aka holder
-        address seller;
-        seller = msg.sender;
+        address seller = msg.sender;
 
         require(seller == idToListedToken[tokenId].seller, "Only nft holder toggle listing");
 
@@ -238,9 +228,23 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
         return items;
     }
 
+    function executeCrossSale(address recipient, uint256 tokenId) public {
+        require(msg.sender == operator, "Only operator can access this function");
 
+        //update the details of the token
+        idToListedToken[tokenId].currentlyListed = false;
+        idToListedToken[tokenId].seller = payable(recipient);
+        _itemsSold.increment();
 
-    function executeSale(address recipient, uint256 tokenId) public payable {
+        _transfer(address(this), recipient, tokenId);
+
+        // reset reserved state
+        idToListedToken[tokenId].reservedUntil = block.timestamp;
+        idToListedToken[tokenId].lastReservedBy = address(0x0);
+    }
+
+    // same chain sale
+    function executeSale(uint256 tokenId) public payable {
         uint price = idToListedToken[tokenId].price;
         address seller = idToListedToken[tokenId].seller;
         // require(msg.value == price, "Please submit the asking price in order to complete the purchase");
@@ -248,24 +252,22 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
         require(idToListedToken[tokenId].currentlyListed == true, "NFT is not on sale");
 
         // aka buyer
-        address buyer;
-        if (msg.sender == operator) {
-            buyer = recipient;
-        } else {
-            buyer = msg.sender;
-        }
+        address buyer = msg.sender;
 
         // check if buyer have enough balance to pay
         IERC20 axlToken = IERC20(receivingToken);
-        require(balances[recipient] >= price, 'Insufficient payment');
+
+        // user allowance
+        uint256 userAllowance = axlToken.allowance(address(msg.sender), address(this));
+        // check for allowance
+        require(userAllowance > 0, 'Insufficient allowance');
+
+        require(axlToken.balanceOf(msg.sender) >= price, 'Insufficient payment');
 
         // prevent contract call by non-reserved person before the reservedUtil expired
         if (idToListedToken[tokenId].reservedUntil < block.timestamp) {
             require(buyer == idToListedToken[tokenId].lastReservedBy, "NFT currently reserved by someone else");
         }
-
-        // deduct recipient balance on ledger
-        balances[recipient] -= price;
 
         //update the details of the token
         idToListedToken[tokenId].currentlyListed = false;
@@ -273,11 +275,11 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
         _itemsSold.increment();
 
         //Transfer the proceeds from the sale to the seller of the NFT
-        axlToken.transfer(seller, price);
+        axlToken.transferFrom(msg.sender, seller, price);
         // payable(seller).transfer(msg.value);
 
         //Transfer the listing fee to the marketplace creator
-        axlToken.transfer(owner, listPrice);
+        axlToken.transferFrom(msg.sender, owner, listPrice);
         // payable(owner).transfer(listPrice);
 
 
@@ -290,8 +292,4 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
         idToListedToken[tokenId].reservedUntil = block.timestamp;
         idToListedToken[tokenId].lastReservedBy = address(0x0);
     }
-
-    //We might add a resell token function in the future
-    //In that case, tokens won't be listed by default but users can send a request to actually list a token
-    //Currently NFTs are listed by default
 }

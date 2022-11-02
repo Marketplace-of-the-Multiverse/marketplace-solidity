@@ -13,9 +13,9 @@
     "tokens": {
       "aUSDC": "aUSDC"
     },
-    "messageSender": "0x3F622b9aD900F32597824099bAaf28c76B16aCFb",
-    "messageReceiver": "0x2052Be942DD79386fc60fBfEBEeFCE6e5E4DDbfe",
-    "nftMarketplace": "0x95aa988924a83fe21872EE678a2Cb911A3DAca04"
+    "messageSender": "0x3D5A92985de0Cdae8daD72C501b176456E1f6598",
+    "messageReceiver": "0x6E793a97B51de968b185703c476f25B076699b7E",
+    "nftMarketplace": "0xCc1283636802448d92D2bfCEC3e6ac5925Ac6EdA"
   },
   {
     "name": "Avalanche",
@@ -31,8 +31,8 @@
     "tokens": {
       "aUSDC": "aUSDC"
     },
-    "messageSender": "0xfB61B7E690D41f396e780d4100A177714a87d8a2",
-    "messageReceiver": "0x5F02A0E5aB54698202233Eb9D873F601Eb98d3A4",
-    "nftMarketplace": "0xf59E5e8EC059E47E5eA989F7dA8cFe6e3d8A9d83"
+    "messageSender": "0x35Cdc6DE7E967B4b8cc7f6433575FdA01e4b1465",
+    "messageReceiver": "0x7Ee921A39De1A6E32d1dF504a5425c1B575ec245",
+    "nftMarketplace": "0xC3209c56cE2601a215eeCA51a0271DFb97e51b8d"
   }
 ]

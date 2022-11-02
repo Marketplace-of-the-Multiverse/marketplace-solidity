@@ -95,6 +95,7 @@ export async function sendTokenToDestChain(
     2
   );
 
+  console.log(`amount: ${ethers.utils.parseUnits(amount, 6)}`);
   const receipt = await sourceContract
     .sendToOne(
       "Moonbeam",
