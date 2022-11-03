@@ -62,7 +62,6 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
         return receivingToken;
     }
 
-    // function updateOperator(address _operator) public payable {
     function updateReceivingToken(address _receivingToken) public {
         require(owner == msg.sender, "Only owner can update receiving token");
         receivingToken = _receivingToken;
@@ -76,13 +75,11 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
         return owner;
     }
 
-    // function updateOperator(address _operator) public payable {
     function updateOperator(address _operator) public {
         require(owner == msg.sender, "Only owner can update operator");
         operator = _operator;
     }
 
-    // function updateListPrice(uint256 _listPrice) public payable {
     function updateListPrice(uint256 _listPrice) public {
         require(owner == msg.sender, "Only owner can update listing price");
         listPrice = _listPrice;
@@ -92,7 +89,6 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
         return listPrice;
     }
 
-    // function updateFloorPrice(uint256 _floorPrice) public payable {
     function updateFloorPrice(uint256 _floorPrice) public {
         require(owner == msg.sender, "Only owner can update floor price");
         floorPrice = _floorPrice;
@@ -116,6 +112,23 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
     }
 
     //The first time a token is created, it is listed here
+    function crossCreateToken(address recipient, string memory tokenURI) public payable {
+        require(msg.sender == operator, "Only operator can access this function");
+        //Increment the tokenId counter, which is keeping track of the number of minted NFTs
+        _tokenIds.increment();
+        uint256 newTokenId = _tokenIds.current();
+
+        //Mint the NFT with tokenId newTokenId to the address who called createToken
+        _safeMint(recipient, newTokenId);
+
+        //Map the tokenId to the tokenURI (which is an IPFS URL with the NFT metadata)
+        _setTokenURI(newTokenId, tokenURI);
+
+        //Helper function to update Global variables and emit an event
+        createListedToken(newTokenId, floorPrice, recipient);
+    }
+
+    //The first time a token is created, it is listed here
     function createToken(string memory tokenURI) public payable returns (uint) {
         //Increment the tokenId counter, which is keeping track of the number of minted NFTs
         _tokenIds.increment();
@@ -128,18 +141,16 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
         _setTokenURI(newTokenId, tokenURI);
 
         //Helper function to update Global variables and emit an event
-        createListedToken(newTokenId, floorPrice);
+        createListedToken(newTokenId, floorPrice, msg.sender);
 
         return newTokenId;
     }
 
-    function createListedToken(uint256 tokenId, uint256 price) private {
+    function createListedToken(uint256 tokenId, uint256 price, address seller) private {
         //Make sure the sender sent enough ETH to pay for listing
         // require(msg.value >= listPrice, "Hopefully sending the correct price");
         //Just sanity check
         // require(price > 0, "Make sure the price isn't negative");
-
-        address seller = msg.sender;
 
         //Update the mapping of tokenId's to Token details, useful for retrieval functions
         idToListedToken[tokenId] = ListedToken(
@@ -153,6 +164,36 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
         );
     }
 
+    function crossSetListToken(address recipient, uint256 tokenId, uint256 price) public {
+        require(msg.sender == operator, "Only operator can access this function");
+        //Just sanity check
+        require(price > 0, "Make sure the price isn't negative");
+        //Make sure the sender sent enough ETH to pay for listing
+        require(price >= listPrice, "You need to include listing price in tx");
+
+        // seller aka holder
+        address seller = recipient;
+
+        require(seller == idToListedToken[tokenId].seller, "Only nft holder can toggle listing");
+
+        //approve the marketplace to sell NFTs on your behalf
+        approve(address(this), tokenId);
+        _transfer(seller, address(this), tokenId);
+        //Emit the event for successful transfer. The frontend parses this message and updates the end user
+        emit TokenListedSuccess(
+            tokenId,
+            address(this),
+            seller,
+            price,
+            true,
+            block.timestamp,
+            address(0x0)
+        );
+
+        idToListedToken[tokenId].price = price;
+        idToListedToken[tokenId].currentlyListed = true;
+    }
+
     function setListToken(uint256 tokenId, uint256 price) public {
         //Just sanity check
         require(price > 0, "Make sure the price isn't negative");
@@ -162,7 +203,7 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
         // seller aka holder
         address seller = msg.sender;
 
-        require(seller == idToListedToken[tokenId].seller, "Only nft holder toggle listing");
+        require(seller == idToListedToken[tokenId].seller, "Only nft holder can toggle listing");
 
         //approve the marketplace to sell NFTs on your behalf
         approve(address(this), tokenId);
@@ -228,7 +269,7 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
         return items;
     }
 
-    function executeCrossSale(address recipient, uint256 tokenId) public {
+    function crossExecuteSale(address recipient, uint256 tokenId) public {
         require(msg.sender == operator, "Only operator can access this function");
 
         //update the details of the token

@@ -4,6 +4,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import { wallet, isTestnet } from "../config/constants";
 import {
   sendTokenToDestChain,
+  listTokenToDestChain,
+  mintTokenToDestChain,
   getBalance,
   generateRecipientAddress,
   truncatedAddress,
@@ -32,6 +34,25 @@ const Home: NextPage = () => {
       },
     );
   }
+
+  async function mintNft() {
+    setLoading(true);
+    await mintTokenToDestChain(setTxhash).finally(
+      () => {
+        setLoading(false);
+      },
+    );
+  }
+
+  async function listNft() {
+    setLoading(true);
+    await listTokenToDestChain(setTxhash).finally(
+      () => {
+        setLoading(false);
+      },
+    );
+  }
+
 
   const handleRefreshDestBalances = useCallback(async () => {
     const _balances = await getBalance(recipientAddresses, false);
@@ -166,6 +187,26 @@ const Home: NextPage = () => {
                       })}
                     >
                       Generate Random Address
+                    </button>
+
+                    <button
+                      onClick={mintNft}
+                      type="button"
+                      className={cn("btn btn-accent mt-2", {
+                        loading,
+                      })}
+                    >
+                      Mint NFT
+                    </button>
+
+                    <button
+                      onClick={listNft}
+                      type="button"
+                      className={cn("btn btn-accent mt-2", {
+                        loading,
+                      })}
+                    >
+                      List NFT
                     </button>
                   </div>
                 </form>

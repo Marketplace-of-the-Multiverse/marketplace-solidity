@@ -22,9 +22,11 @@ contract NFTMarketplace{
     // empty because we're not concerned with internal details
     function getListPrice() public view returns (uint256) {}
     function createToken(string memory tokenURI) public payable returns (uint) {}
-    function executeCrossSale(address recipient, uint256 tokenId) public payable {}
     function getListedTokenForId(uint256 tokenId) public view returns (ListedToken memory) {}
     function getOwner() public view returns (address) {}
+    function crossExecuteSale(address recipient, uint256 tokenId) public payable {}
+    function crossSetListToken(address recipient, uint256 tokenId, uint256 price) public {}
+    function crossCreateToken(address recipient, string memory tokenURI) public payable {}
 }
 
 contract MessageReceiver is AxelarExecutable {
@@ -32,12 +34,17 @@ contract MessageReceiver is AxelarExecutable {
     //owner is the contract address that created the smart contract
     address owner;
     NFTMarketplace nftMarket;
+    string public sourceChain;
 
     constructor(address _gateway, address _gasReceiver)
         AxelarExecutable(_gateway)
     {
         gasReceiver = IAxelarGasService(_gasReceiver);
         owner = payable(msg.sender);
+    }
+
+    function compareStrings(string memory a, string memory b) internal pure returns (bool) {
+        return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))));
     }
 
     function getMarketplace() public view returns (address) {
@@ -53,6 +60,29 @@ contract MessageReceiver is AxelarExecutable {
     event Failed(string reason);
     event Transfer(address indexed from, address indexed to, uint256 value);
 
+    function _execute(
+        string calldata sourceChain_,
+        string calldata,
+        bytes calldata payload
+    ) internal override {
+        sourceChain = sourceChain_;
+        (
+            address recipient,
+            string memory action,
+            string memory tokenUrl,
+            uint listTokenId,
+            uint listPrice
+        ) = abi.decode(payload, (address, string, string, uint, uint));
+
+        if (compareStrings(action, "mint")) {
+            // mint
+            nftMarket.crossCreateToken(recipient, tokenUrl);
+        } else {
+            // list
+            nftMarket.crossSetListToken(recipient, listTokenId, listPrice);
+        }
+        emit Executed();
+    }
 
     function _executeWithToken(
         string calldata,
@@ -107,7 +137,7 @@ contract MessageReceiver is AxelarExecutable {
             axlToken.transfer(marketplaceOwner, listPrice);
 
             // execute transfer nft call
-            nftMarket.executeCrossSale(recipient, tokenId);
+            nftMarket.crossExecuteSale(recipient, tokenId);
 
             // cannot manually emit like this
             // emit Transfer(address(this), address(targetToken.seller), sellerPayment);

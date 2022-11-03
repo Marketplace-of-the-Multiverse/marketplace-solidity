@@ -65,6 +65,87 @@ export function generateRecipientAddress(): string {
   return ethers.Wallet.createRandom().address;
 }
 
+export async function mintTokenToDestChain(
+    onSent: (txhash: string) => void,
+  ) {
+
+    const api = new AxelarQueryAPI({ environment: Environment.TESTNET });
+
+    // Calculate how much gas to pay to Axelar to execute the transaction at the destination chain
+    const gasFee = await api.estimateGasFee(
+      EvmChain.AVALANCHE,
+      EvmChain.MOONBEAM,
+      GasToken.AVAX,
+      1000000,
+      2
+    );
+
+    const receipt = await sourceContract
+      .crossChainMint(
+        "Moonbeam",
+        destContract.address,
+        "https://api.npoint.io/efaecf7cee7cfe142516",
+        {
+          value: BigInt(isTestnet ? gasFee : 3000000)
+        },
+      )
+      .then((tx: any) => tx.wait());
+
+    console.log({
+      txHash: receipt.transactionHash,
+    });
+    onSent(receipt.transactionHash);
+
+    // Wait destination contract to execute the transaction.
+    return new Promise((resolve, reject) => {
+      destContract.on("Executed", () => {
+        destContract.removeAllListeners("Executed");
+        resolve(null);
+      });
+    });
+  }
+
+  export async function listTokenToDestChain(
+    onSent: (txhash: string) => void,
+  ) {
+
+    const api = new AxelarQueryAPI({ environment: Environment.TESTNET });
+
+    // Calculate how much gas to pay to Axelar to execute the transaction at the destination chain
+    const gasFee = await api.estimateGasFee(
+      EvmChain.AVALANCHE,
+      EvmChain.MOONBEAM,
+      GasToken.AVAX,
+      1000000,
+      2
+    );
+
+    const receipt = await sourceContract
+      .crossChainList(
+        "Moonbeam",
+        destContract.address,
+        2,
+        ethers.utils.parseUnits('0.1', 6),
+        {
+          value: BigInt(isTestnet ? gasFee : 3000000)
+        },
+      )
+      .then((tx: any) => tx.wait());
+
+    console.log({
+      txHash: receipt.transactionHash,
+    });
+    onSent(receipt.transactionHash);
+
+    // Wait destination contract to execute the transaction.
+    return new Promise((resolve, reject) => {
+      destContract.on("Executed", () => {
+        destContract.removeAllListeners("Executed");
+        resolve(null);
+      });
+    });
+  }
+
 export async function sendTokenToDestChain(
   amount: string,
   recipientAddresses: string[],
@@ -97,10 +178,9 @@ export async function sendTokenToDestChain(
 
   console.log(`amount: ${ethers.utils.parseUnits(amount, 6)}`);
   const receipt = await sourceContract
-    .sendToOne(
+    .crossChainBuy(
       "Moonbeam",
       destContract.address,
-      process.env.NEXT_PUBLIC_ADDRESS,
       "aUSDC",
       ethers.utils.parseUnits(amount, 6),
       1,
