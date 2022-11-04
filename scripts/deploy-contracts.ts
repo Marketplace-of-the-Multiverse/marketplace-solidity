@@ -18,102 +18,76 @@ let chains = isTestnet
   : require("../config/local.json");
 
 // get chains
-const moonbeamChain = chains.find((chain: any) => chain.name === "Moonbeam");
-const avalancheChain = chains.find((chain: any) => chain.name === "Avalanche");
+let moonbeamChain = chains.find((chain: any) => chain.name === "Moonbeam");
+let avalancheChain = chains.find((chain: any) => chain.name === "Avalanche");
+let bscChain = chains.find((chain: any) => chain.name === "BscTest");
+let polygonChain = chains.find((chain: any) => chain.name === "Mumbai");
 
-// get axelar asset (usdc)
-const moonbeamUsdc = '0xD1633F7Fb3d716643125d6415d4177bC36b7186b';
-const avalancheUsdc = '0x57F1c63497AEe0bE305B8852b354CEc793da43bB';
+async function deploy(chain: any, tokenUrl: string) {
+    const provider = getDefaultProvider(chain.rpc);
+    const connectedWallet = wallet.connect(provider);
+
+    const sender = await deployContract(
+        connectedWallet,
+        MessageSenderContract,
+        [chain.gateway, chain.gasReceiver],
+      );
+      console.log(`MessageSender deployed on ${chain.name}:`, sender.address);
+      chain.messageSender = sender.address;
+
+      const receiver = await deployContract(
+        connectedWallet,
+        MessageReceiverContract,
+        [chain.gateway, chain.gasReceiver],
+      );
+      console.log( `MessageReceiver deployed on ${chain.name}:`, receiver.address );
+      chain.messageReceiver = receiver.address;
+
+      const marketplace = await deployContract(
+        connectedWallet,
+        MarketplaceContract,
+        [receiver.address, chain.crossChainToken],
+      );
+      console.log( `MarketplaceContract deployed on ${chain.name}:`, marketplace.address, );
+      chain.nftMarketplace = marketplace.address;
+
+      await (await marketplace.createToken(tokenUrl)).wait(1);
+      console.log(`Minted nft in ${chain.name}`);
+
+      await (await marketplace.setListToken(1, ethers.utils.parseUnits('0.1', 6))).wait(1);
+      console.log(`Listed nft in ${chain.name}`);
+      // set nftMarketplace on MessageReceiver
+      await (await receiver.setMarketplace(marketplace.address)).wait(1);
+      console.log(`Set marketplace [${marketplace.address}] to ${chain.name} receiver`);
+
+      return chain;
+}
 
 // deploy script
 async function main() {
   /**
    * DEPLOY ON MOONBEAM
    */
-  const moonbeamProvider = getDefaultProvider(moonbeamChain.rpc);
-  const moonbeamConnectedWallet = wallet.connect(moonbeamProvider);
-
-  const moonbeamSender = await deployContract(
-    moonbeamConnectedWallet,
-    MessageSenderContract,
-    [moonbeamChain.gateway, moonbeamChain.gasReceiver],
-  );
-  console.log("MessageSender deployed on Moonbeam:", moonbeamSender.address);
-  moonbeamChain.messageSender = moonbeamSender.address;
-
-  const moonbeamReceiver = await deployContract(
-    moonbeamConnectedWallet,
-    MessageReceiverContract,
-    [moonbeamChain.gateway, moonbeamChain.gasReceiver],
-  );
-  console.log( "MessageReceiver deployed on Moonbeam:", moonbeamReceiver.address );
-  moonbeamChain.messageReceiver = moonbeamReceiver.address;
-
-
-  const moonbeamMarketplace = await deployContract(
-    moonbeamConnectedWallet,
-    MarketplaceContract,
-    [moonbeamReceiver.address, moonbeamUsdc],
-  );
-  console.log( "MarketplaceContract deployed on Moonbeam:", moonbeamMarketplace.address, );
-  moonbeamChain.nftMarketplace = moonbeamMarketplace.address;
-
-  await (await moonbeamMarketplace.createToken('https://api.npoint.io/efaecf7cee7cfe142516')).wait(1);
-  console.log('Minted nft in Moonbeam');
-  await (await moonbeamMarketplace.setListToken(1, ethers.utils.parseUnits('0.1', 6))).wait(1);
-  console.log('Listed nft in Moonbeam');
-  // set nftMarketplace on MessageReceiver
-  await (await moonbeamReceiver.setMarketplace(moonbeamMarketplace.address)).wait(1);
-  console.log('Set moonbeamMarketplace to receiver');
+    moonbeamChain = await deploy(moonbeamChain, 'https://api.npoint.io/efaecf7cee7cfe142516');
 
   /**
    * DEPLOY ON AVALANCHE
    */
-  const avalancheProvider = getDefaultProvider(avalancheChain.rpc);
-  const avalancheConnectedWallet = wallet.connect(avalancheProvider);
-  const avalancheSender = await deployContract(
-    avalancheConnectedWallet,
-    MessageSenderContract,
-    [avalancheChain.gateway, avalancheChain.gasReceiver],
-  );
-  console.log("MessageSender deployed on Avalanche:", avalancheSender.address);
-  avalancheChain.messageSender = avalancheSender.address;
+    avalancheChain = await deploy(avalancheChain, 'https://api.npoint.io/7a8a7902a4ee5625dec2');
 
+  /**
+   * DEPLOY ON BSC
+   */
+    bscChain = await deploy(bscChain, 'https://api.npoint.io/efaecf7cee7cfe142516');
 
-  const avalancheReceiver = await deployContract(
-    avalancheConnectedWallet,
-    MessageReceiverContract,
-    [avalancheChain.gateway, avalancheChain.gasReceiver],
-  );
-  console.log(
-    "MessageReceiver deployed on Avalanche:",
-    avalancheReceiver.address,
-  );
-  avalancheChain.messageReceiver = avalancheReceiver.address;
-
-
-  const avalancheMarketplace = await deployContract(
-    avalancheConnectedWallet,
-    MarketplaceContract,
-    [avalancheReceiver.address, avalancheUsdc],
-  );
-  console.log(
-    "MarketplaceContract deployed on Avalanche:",
-    avalancheMarketplace.address,
-  );
-  avalancheChain.nftMarketplace = avalancheMarketplace.address;
-
-  await (await avalancheMarketplace.createToken('https://api.npoint.io/7a8a7902a4ee5625dec2')).wait(1);
-  console.log('Minted nft in Avalanche');
-  await (await avalancheMarketplace.setListToken(1, ethers.utils.parseUnits('0.1', 6))).wait(1);
-  console.log('Listed nft in Avalanche');
-  // set nftMarketplace on MessageReceiver
-  await (await avalancheReceiver.setMarketplace(avalancheMarketplace.address)).wait(1);
-  console.log('Set avalancheMarketplace to receiver');
+  /**
+   * DEPLOY ON POLYGON
+   */
+    polygonChain = await deploy(polygonChain, 'https://api.npoint.io/7a8a7902a4ee5625dec2');
 
 
   // update chains
-  const updatedChains = [moonbeamChain, avalancheChain];
+  const updatedChains = [moonbeamChain, avalancheChain, bscChain, polygonChain];
   if (isTestnet) {
     await fs.writeFile(
       "config/testnet.json",
