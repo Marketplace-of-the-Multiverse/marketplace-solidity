@@ -5,6 +5,7 @@ import { wallet, isTestnet } from "../config/constants";
 import {
   sendTokenToDestChain,
   listTokenToDestChain,
+  delistTokenToDestChain,
   mintTokenToDestChain,
   getBalance,
   generateRecipientAddress,
@@ -47,6 +48,15 @@ const Home: NextPage = () => {
   async function listNft() {
     setLoading(true);
     await listTokenToDestChain(setTxhash).finally(
+      () => {
+        setLoading(false);
+      },
+    );
+  }
+
+  async function delistNft() {
+    setLoading(true);
+    await delistTokenToDestChain(setTxhash).finally(
       () => {
         setLoading(false);
       },
@@ -207,6 +217,16 @@ const Home: NextPage = () => {
                       })}
                     >
                       List NFT
+                    </button>
+
+                    <button
+                      onClick={delistNft}
+                      type="button"
+                      className={cn("btn btn-accent mt-2", {
+                        loading,
+                      })}
+                    >
+                      Delist NFT
                     </button>
                   </div>
                 </form>

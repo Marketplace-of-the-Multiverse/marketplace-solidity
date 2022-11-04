@@ -25,8 +25,9 @@ contract NFTMarketplace{
     function getListedTokenForId(uint256 tokenId) public view returns (ListedToken memory) {}
     function getOwner() public view returns (address) {}
     function crossExecuteSale(address recipient, uint256 tokenId) public payable {}
-    function crossSetListToken(address recipient, uint256 tokenId, uint256 price) public {}
     function crossCreateToken(address recipient, string memory tokenURI) public payable {}
+    function crossSetListToken(address recipient, uint256 tokenId, uint256 price) public {}
+    function crossDelistToken(address recipient, uint256 tokenId) public {}
 }
 
 contract MessageReceiver is AxelarExecutable {
@@ -77,9 +78,12 @@ contract MessageReceiver is AxelarExecutable {
         if (compareStrings(action, "mint")) {
             // mint
             nftMarket.crossCreateToken(recipient, tokenUrl);
-        } else {
+        } else if (compareStrings(action, "list")) {
             // list
             nftMarket.crossSetListToken(recipient, listTokenId, listPrice);
+        } else {
+            // delist
+            nftMarket.crossDelistToken(recipient, listTokenId);
         }
         emit Executed();
     }

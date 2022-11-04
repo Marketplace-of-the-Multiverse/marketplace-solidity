@@ -177,7 +177,7 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
         require(seller == idToListedToken[tokenId].seller, "Only nft holder can toggle listing");
 
         //approve the marketplace to sell NFTs on your behalf
-        approve(address(this), tokenId);
+        // approve(address(this), tokenId);
         _transfer(seller, address(this), tokenId);
         //Emit the event for successful transfer. The frontend parses this message and updates the end user
         emit TokenListedSuccess(
@@ -221,6 +221,25 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
 
         idToListedToken[tokenId].price = price;
         idToListedToken[tokenId].currentlyListed = true;
+    }
+
+    function crossDelistToken(address recipient, uint256 tokenId) public {
+        require(msg.sender == operator, "Only operator can access this function");
+        require(recipient == idToListedToken[tokenId].seller, "Only nft holder can toggle listing");
+
+        //approve the marketplace to sell NFTs on your behalf
+        _transfer(address(this), recipient, tokenId);
+
+        idToListedToken[tokenId].currentlyListed = false;
+    }
+
+    function delistToken(uint256 tokenId) public {
+        require(msg.sender == idToListedToken[tokenId].seller, "Only nft holder can toggle listing");
+
+        //approve the marketplace to sell NFTs on your behalf
+        _transfer(address(this), msg.sender, tokenId);
+
+        idToListedToken[tokenId].currentlyListed = false;
     }
 
     //This will return all the NFTs currently listed to be sold on the marketplace
@@ -323,11 +342,8 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
         axlToken.transferFrom(msg.sender, owner, listPrice);
         // payable(owner).transfer(listPrice);
 
-
         //Actually transfer the token to the new owner
         _transfer(address(this), buyer, tokenId);
-        //approve the marketplace to sell NFTs on your behalf
-        // approve(address(this), tokenId);
 
         // reset reserved state
         idToListedToken[tokenId].reservedUntil = block.timestamp;

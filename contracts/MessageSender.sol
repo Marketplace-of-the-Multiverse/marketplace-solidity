@@ -20,6 +20,33 @@ contract MessageSender {
         gasReceiver = IAxelarGasService(_gasReceiver);
     }
 
+    function crossChainDelist(
+        string calldata destinationChain,
+        string calldata destinationAddress,
+        uint256 tokenId
+    ) external payable {
+        // make sure gateway and gasReceiver payload is the same
+        // axelar will not allow diff payload content as it consume diff gas amount
+        // axelar rugi in this case
+        bytes memory payload = abi.encode(msg.sender, "delist", "", tokenId, 0);
+
+        if (msg.value > 0) {
+            gasReceiver.payNativeGasForContractCall{value: msg.value}(
+                address(this),
+                destinationChain,
+                destinationAddress,
+                payload,
+                msg.sender
+            );
+        }
+
+        gateway.callContract(
+            destinationChain,
+            destinationAddress,
+            payload
+        );
+    }
+
     function crossChainList(
         string calldata destinationChain,
         string calldata destinationAddress,
