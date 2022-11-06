@@ -1,43 +1,5 @@
 [
   {
-    "name": "Avalanche",
-    "chainId": 43113,
-    "rpc": "https://avalanchetestapi.terminet.io/ext/bc/C/rpc",
-    "gateway": "0xC249632c2D40b9001FE907806902f63038B737Ab",
-    "gasReceiver": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
-    "tokenName": "Avax",
-    "tokenSymbol": "AVAX",
-    "executableSample": "0x9372350Abb3B5c10DB1BB858e0bCf91eFa74d946",
-    "constAddressDeployer": "0x98b2920d53612483f91f12ed7754e51b4a77919e",
-    "crossChainToken": "0x57F1c63497AEe0bE305B8852b354CEc793da43bB",
-    "tokens": {
-      "aUSDC": "aUSDC"
-    },
-    "messageSender": "0x57A25f4C779fFE289cc858F9ca2d3A240622EC19",
-    "messageReceiver": "0x8235E54719E8b0b825a1d15F5df06135fB0a8885",
-    "nftMarketplace": "0x6f988DC12c95dc21cFEE7F2540128cC5c52C342C",
-    "receiverMock": "0xC52349D185455caDAa02bEF9Fc165A2234017cff"
-  },
-  {
-    "name": "BscTest",
-    "chainId": 97,
-    "gateway": "0x4D147dCb984e6affEEC47e44293DA442580A3Ec0",
-    "rpc": "https://data-seed-prebsc-1-s1.binance.org:8545",
-    "gasReceiver": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
-    "tokenName": "BNB",
-    "tokenSymbol": "BNB",
-    "executableSample": "0x9372350Abb3B5c10DB1BB858e0bCf91eFa74d946",
-    "constAddressDeployer": "0x98b2920d53612483f91f12ed7754e51b4a77919e",
-    "crossChainToken": "0xc2fA98faB811B785b81c64Ac875b31CC9E40F9D2",
-    "tokens": {
-      "aUSDC": "aUSDC"
-    },
-    "messageSender": "0x45097d009205C7A78FEDd4DCE8199DaDE3A05232",
-    "messageReceiver": "0xdBf3A9C53034a1a72DE9899E67b2D72280EE8A98",
-    "nftMarketplace": "0x25e565d569BEf9baE30EcC963e38eA3C2407b634",
-    "receiverMock": "0x6f6A2fEeC4a2436C44e1956482c824Ca8F1F54C2"
-  },
-  {
     "name": "Moonbeam",
     "chainId": 1287,
     "gateway": "0x5769D84DD62a6fD969856c75c7D321b84d455929",
@@ -51,9 +13,48 @@
     "tokens": {
       "aUSDC": "aUSDC"
     },
-    "messageSender": "0xFdC2b0dD5857d8B3C6515325a5E7e823106D4628",
-    "messageReceiver": "0x6C90F4745949fd9A2ab2ca8093e169b8C87455C9",
-    "nftMarketplace": "0x7cB60AB97eA5D75d46Ba8837A6ADa0BBA6257BE1"
+    "messageSender": "0x797DA68eFCc022df34a634a74F2a4AcB2210c24C",
+    "messageReceiver": "0x623c73BEe533411F71A033bfdb63Fd6143A73cb2",
+    "nftMarketplace": "0x18C657e646386Bc7776e70b4291975A99CDe3cFB",
+    "receiverMock": "0x49d616DE7DCfe6bD1804dedBFc2c7de32201a830"
+  },
+  {
+    "name": "Avalanche",
+    "chainId": 43113,
+    "rpc": "https://avalanchetestapi.terminet.io/ext/bc/C/rpc",
+    "gateway": "0xC249632c2D40b9001FE907806902f63038B737Ab",
+    "gasReceiver": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
+    "tokenName": "Avax",
+    "tokenSymbol": "AVAX",
+    "executableSample": "0x9372350Abb3B5c10DB1BB858e0bCf91eFa74d946",
+    "constAddressDeployer": "0x98b2920d53612483f91f12ed7754e51b4a77919e",
+    "crossChainToken": "0x57F1c63497AEe0bE305B8852b354CEc793da43bB",
+    "tokens": {
+      "aUSDC": "aUSDC"
+    },
+    "messageSender": "0x484924e664c20FA525606Df8BfDDC658ed6D3FA2",
+    "messageReceiver": "0xfB1Ab4c768B3049A04A45F2f6BCC6FE0C7036729",
+    "nftMarketplace": "0x0E7a28fE7a19d8e578d8AD14b4F59be899524e72",
+    "receiverMock": "0x4B090ae56afCdfaD90D7A34860B8bBf416D1E6De"
+  },
+  {
+    "name": "BscTest",
+    "chainId": 97,
+    "gateway": "0x4D147dCb984e6affEEC47e44293DA442580A3Ec0",
+    "rpc": "https://data-seed-prebsc-1-s3.binance.org:8545",
+    "gasReceiver": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
+    "tokenName": "BNB",
+    "tokenSymbol": "BNB",
+    "executableSample": "0x9372350Abb3B5c10DB1BB858e0bCf91eFa74d946",
+    "constAddressDeployer": "0x98b2920d53612483f91f12ed7754e51b4a77919e",
+    "crossChainToken": "0xc2fA98faB811B785b81c64Ac875b31CC9E40F9D2",
+    "tokens": {
+      "aUSDC": "aUSDC"
+    },
+    "messageSender": "0xBBCfaCC1e911dFc9A2C5dF0AC41457789ecF1dC2",
+    "messageReceiver": "0x1519FA548320cD19F6037255183B1E0657F9A954",
+    "nftMarketplace": "0xb3B7B6115875343a11920fE7739d4bB5B4D7C06E",
+    "receiverMock": "0x5a611bD7ecE9104aAD4e2f3B14f720108E4F32a3"
   },
   {
     "name": "Mumbai",
@@ -69,8 +70,9 @@
     "tokens": {
       "aUSDC": "aUSDC"
     },
-    "messageSender": "0x4e83524285919A7913Ac7Ed9E0F01E97D10dB03b",
-    "messageReceiver": "0x69AdfB50dA65303BFa7e8b88DF1410808d7DA7af",
-    "nftMarketplace": "0x3A4Fe7cdfe280d4fFffCec3604570FB95501000B"
+    "messageSender": "0xe154Ba463488AfE26f001b0Db09008d55A822741",
+    "messageReceiver": "0xe13e973E4B64531314b12d9F71dEE0DAbc2E57F0",
+    "nftMarketplace": "0xf0f1fae41B0d825EbC747579192D066653E358f5",
+    "receiverMock": "0x2fA458f0a39C04BeC6501F49Ff3F48586A218dc7"
   }
 ]

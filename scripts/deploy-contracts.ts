@@ -44,13 +44,13 @@ async function deploy(chain: any, tokenUrl: string) {
     }:`, receiver.address);
     chain.messageReceiver = receiver.address;
 
-    const receiverMock = await deployContract(
-        connectedWallet,
-        ReceiverMockContract,
-        [receiver.address],
-    );
-    console.log( `ReceiverMock deployed on ${chain.name}:`, receiverMock.address, );
-    chain.receiverMock = receiverMock.address;
+    // const receiverMock = await deployContract(
+    //     connectedWallet,
+    //     ReceiverMockContract,
+    //     [receiver.address],
+    // );
+    // console.log( `ReceiverMock deployed on ${chain.name}:`, receiverMock.address, );
+    // chain.receiverMock = receiverMock.address;
 
     const marketplace = await deployContract(connectedWallet, MarketplaceContract, [
         receiver.address, chain.crossChainToken
@@ -72,6 +72,7 @@ async function deploy(chain: any, tokenUrl: string) {
     console.log(`Listed nft in ${
         chain.name
     }`);
+
     // set nftMarketplace on MessageReceiver
     await(await receiver.setMarketplace(marketplace.address)).wait(1);
     console.log(`Set marketplace [${
