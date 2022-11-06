@@ -1,4 +1,4 @@
-import { Contract, ethers, getDefaultProvider, providers } from "ethers";
+import { Contract, ethers, getDefaultProvider, providers, BigNumber } from "ethers";
 import {
   AxelarQueryAPI,
   Environment,
@@ -9,31 +9,34 @@ import {
 import AxelarGatewayContract from "../artifacts/@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol/IAxelarGateway.json";
 import MessageSenderContract from "../artifacts/contracts/MessageSender.sol/MessageSender.json";
 import MessageReceiverContract from "../artifacts/contracts/MessageReceiver.sol/MessageReceiver.json";
+import NFTMarketplace from "../artifacts/contracts/NFTMarketplace.sol/NFTMarketplace.json";
 import IERC20 from "../artifacts/@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IERC20.sol/IERC20.json";
 import { isTestnet, wallet } from "../config/constants";
+import { TypedDataDomain } from "@ethersproject/abstract-signer";
+import _ from "lodash";
 
 console.log(isTestnet);
 let chains = isTestnet
   ? require("../config/testnet.json")
   : require("../config/local.json");
 
-const moonbeamChain = chains.find(
-  (chain: any) => chain.name === "Moonbeam",
-) as any;
-const avalancheChain = chains.find(
-  (chain: any) => chain.name === "Avalanche",
-) as any;
+// const moonbeamChain = chains.find(
+//   (chain: any) => chain.name === "Moonbeam",
+// ) as any;
+_.find(chains, (chain:any) => chain.name === "BscTest")
+const bscChain = _.find(chains, (chain:any) => chain.name === "BscTest");
+const avalancheChain = _.find(chains, (chain:any) => chain.name === "Avalanche");
 
-if (!moonbeamChain || !avalancheChain) process.exit(0);
+if (!bscChain || !avalancheChain) process.exit(0);
 
 const useMetamask = false; // typeof window === 'object';
 
-const moonbeamProvider = useMetamask
+const bscProvider = useMetamask
   ? new providers.Web3Provider((window as any).ethereum)
-  : getDefaultProvider(moonbeamChain.rpc);
-const moonbeamConnectedWallet = useMetamask
-  ? (moonbeamProvider as providers.Web3Provider).getSigner()
-  : wallet.connect(moonbeamProvider);
+  : getDefaultProvider(bscChain.rpc);
+const bscConnectedWallet = useMetamask
+  ? (bscProvider as providers.Web3Provider).getSigner()
+  : wallet.connect(bscProvider);
 const avalancheProvider = getDefaultProvider(avalancheChain.rpc);
 const avalancheConnectedWallet = wallet.connect(avalancheProvider);
 
@@ -44,9 +47,9 @@ const srcGatewayContract = new Contract(
 );
 
 const destGatewayContract = new Contract(
-  moonbeamChain.gateway,
+  bscChain.gateway,
   AxelarGatewayContract.abi,
-  moonbeamConnectedWallet,
+  bscConnectedWallet,
 );
 
 const sourceContract = new Contract(
@@ -56,9 +59,15 @@ const sourceContract = new Contract(
 );
 
 const destContract = new Contract(
-  moonbeamChain.messageReceiver as string,
+  bscChain.messageReceiver as string,
   MessageReceiverContract.abi,
-  moonbeamConnectedWallet,
+  bscConnectedWallet,
+);
+
+const destMarketplace = new Contract(
+    bscChain.nftMarketplace as string,
+    NFTMarketplace.abi,
+    bscConnectedWallet,
 );
 
 export function generateRecipientAddress(): string {
@@ -74,7 +83,7 @@ export async function mintTokenToDestChain(
     // Calculate how much gas to pay to Axelar to execute the transaction at the destination chain
     const gasFee = await api.estimateGasFee(
       EvmChain.AVALANCHE,
-      EvmChain.MOONBEAM,
+      EvmChain.BINANCE,
       GasToken.AVAX,
       1000000,
       2
@@ -82,7 +91,7 @@ export async function mintTokenToDestChain(
 
     const receipt = await sourceContract
       .crossChainMint(
-        "Moonbeam",
+        "Binance",
         destContract.address,
         "https://api.npoint.io/efaecf7cee7cfe142516",
         {
@@ -114,7 +123,7 @@ export async function mintTokenToDestChain(
     // Calculate how much gas to pay to Axelar to execute the transaction at the destination chain
     const gasFee = await api.estimateGasFee(
       EvmChain.AVALANCHE,
-      EvmChain.MOONBEAM,
+      EvmChain.BINANCE as EvmChain,
       GasToken.AVAX,
       1000000,
       2
@@ -122,9 +131,9 @@ export async function mintTokenToDestChain(
 
     const receipt = await sourceContract
       .crossChainDelist(
-        "Moonbeam",
+        "Binance",
         destContract.address,
-        1,
+        2,
         {
           value: BigInt(isTestnet ? gasFee : 3000000)
         },
@@ -154,18 +163,52 @@ export async function mintTokenToDestChain(
     // Calculate how much gas to pay to Axelar to execute the transaction at the destination chain
     const gasFee = await api.estimateGasFee(
       EvmChain.AVALANCHE,
-      EvmChain.MOONBEAM,
+      EvmChain.BINANCE,
       GasToken.AVAX,
       1000000,
       2
     );
 
+    const tokenId = 2;
+    // set deadline in 1 days
+    const deadline = Math.round(Date.now() / 1000 + (7 * 24 * 60 * 60));
+
+    const contractName = await destMarketplace.name();
+    const nftNonce = await destMarketplace.nonces(tokenId);
+    const signature = await sign(contractName, bscChain.nftMarketplace, bscChain.messageReceiver, tokenId, bscChain.chainId, nftNonce, deadline);
+    console.log(`spender: ${bscChain.messageReceiver}`);
+    console.log(`nonces: ${nftNonce}`);
+    console.log(`contractName: ${contractName}`);
+    console.log(`signature: ${signature}`);
+    console.log(`deadline: ${deadline}`);
+
+    // const payload = await ethers.utils.defaultAbiCoder.encode(
+    //     ["address", "string", "string", "uint256", "uint256", "uint256", "bytes"],
+    //     [
+    //         "0x801Df8bD5C0C24D9B942a20627CAF1Bd34427804",
+    //         "list",
+    //         "",
+    //         2,
+    //         100000,
+    //         deadline,
+    //         signature
+    //     ]
+    // );
+
+    // console.log(payload);
+
+    // const decoded = await ethers.utils.defaultAbiCoder.decode(["address", "uint256", "string", "uint256", "uint256", "uint256", "bytes"], '0x0000000000000000000000001cc5f2f37a4787f02e18704d252735fb714f35ec000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000186a0000000000000000000000000000000000000000000000000000000006370ec1000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004159d912d0c1da7967f0aae7369c305f4d2f99182b7ceabd986f7e0ce703e41e56575cb0d3a840f6713c61f5c66750e1fadcb0a5dc53167ec54c8c4d5d58001fb61b00000000000000000000000000000000000000000000000000000000000000');
+
+    // console.log(decoded);
+
     const receipt = await sourceContract
       .crossChainList(
-        "Moonbeam",
+        "Binance",
         destContract.address,
         2,
         ethers.utils.parseUnits('0.1', 6),
+        deadline,
+        signature,
         {
           value: BigInt(isTestnet ? gasFee : 3000000)
         },
@@ -210,7 +253,7 @@ export async function sendTokenToDestChain(
   // Calculate how much gas to pay to Axelar to execute the transaction at the destination chain
   const gasFee = await api.estimateGasFee(
     EvmChain.AVALANCHE,
-    EvmChain.MOONBEAM,
+    EvmChain.BINANCE,
     GasToken.AVAX,
     1000000,
     2
@@ -219,7 +262,7 @@ export async function sendTokenToDestChain(
   console.log(`amount: ${ethers.utils.parseUnits(amount, 6)}`);
   const receipt = await sourceContract
     .crossChainBuy(
-      "Moonbeam",
+      "Binance",
       destContract.address,
       "aUSDC",
       ethers.utils.parseUnits(amount, 6),
@@ -254,7 +297,7 @@ export async function getBalance(addresses: string[], isSource: boolean) {
   const contract = isSource ? srcGatewayContract : destGatewayContract;
   const connectedWallet = isSource
     ? avalancheConnectedWallet
-    : moonbeamConnectedWallet;
+    : bscConnectedWallet;
   const tokenAddress = await contract.tokenAddresses("aUSDC");
   const erc20 = new Contract(tokenAddress, IERC20.abi, connectedWallet);
   const balances = await Promise.all(
@@ -265,3 +308,52 @@ export async function getBalance(addresses: string[], isSource: boolean) {
   );
   return balances;
 }
+
+
+// helper to sign using (spender, tokenId, nonce, deadline) EIP 712
+async function sign(
+    contractName: String,
+    verifyingContract: String,
+    spender: String,
+    tokenId: number,
+    chainId: number,
+    nonce: BigNumber,
+    deadline: number
+  ) {
+
+    const typedData = {
+      types: {
+        Permit: [
+          { name: "spender", type: "address" },
+          { name: "tokenId", type: "uint256" },
+          { name: "nonce", type: "uint256" },
+          { name: "deadline", type: "uint256" },
+        ],
+      },
+      primaryType: "Permit",
+      domain: {
+        name: contractName,
+        version: "1",
+        chainId: chainId,
+        verifyingContract: verifyingContract,
+      },
+      message: {
+        spender,
+        tokenId,
+        nonce,
+        deadline
+      },
+    };
+
+    // sign Permit
+    // assume deployer is the owner
+    const deployer = bscConnectedWallet;
+
+    const signature = await deployer._signTypedData(
+      typedData.domain as TypedDataDomain,
+      { Permit: typedData.types.Permit },
+      typedData.message
+    );
+
+    return signature;
+  }
