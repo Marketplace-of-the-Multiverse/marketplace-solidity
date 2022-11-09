@@ -162,6 +162,7 @@ contract NFTMarketplace is ReentrancyGuard, ERC721URIStoragePermit {
         address payable seller;
         uint256 price;
         bool currentlyListed;
+        string metadata;
         uint256 reservedUntil;
         address lastReservedBy;
     }
@@ -173,6 +174,7 @@ contract NFTMarketplace is ReentrancyGuard, ERC721URIStoragePermit {
         address seller,
         uint256 price,
         bool currentlyListed,
+        string metadata,
         uint256 reservedUntil,
         address lastReservedBy
     );
@@ -304,6 +306,7 @@ contract NFTMarketplace is ReentrancyGuard, ERC721URIStoragePermit {
             payable(seller),
             price,
             false,
+            tokenURI(tokenId),
             block.timestamp,
             address(0x0)
         );
@@ -331,6 +334,7 @@ contract NFTMarketplace is ReentrancyGuard, ERC721URIStoragePermit {
             recipient,
             price,
             true,
+            tokenURI(tokenId),
             block.timestamp,
             address(0x0)
         );
@@ -360,6 +364,7 @@ contract NFTMarketplace is ReentrancyGuard, ERC721URIStoragePermit {
             seller,
             price,
             true,
+            tokenURI(tokenId),
             block.timestamp,
             address(0x0)
         );
@@ -388,7 +393,7 @@ contract NFTMarketplace is ReentrancyGuard, ERC721URIStoragePermit {
     }
 
     //This will return all the NFTs currently listed to be sold on the marketplace
-    function getAllNFTs() public view returns (ListedToken[] memory) {
+    function getAllNFTs(bool listedOnly) public view returns (ListedToken[] memory) {
         uint nftCount = _tokenIds.current();
         ListedToken[] memory tokens = new ListedToken[](nftCount);
         uint currentIndex = 0;
@@ -399,7 +404,44 @@ contract NFTMarketplace is ReentrancyGuard, ERC721URIStoragePermit {
         {
             uint currentId = i + 1;
             ListedToken storage currentItem = idToListedToken[currentId];
-            tokens[currentIndex] = currentItem;
+
+            if (listedOnly && currentItem.currentlyListed) {
+                // get listed item only
+                tokens[currentIndex] = currentItem;
+            } else if (!listedOnly) {
+                // get all item
+                tokens[currentIndex] = currentItem;
+            }
+
+            currentIndex += 1;
+        }
+        //the array 'tokens' has the list of all NFTs in the marketplace
+        return tokens;
+    }
+
+    //This will return all the NFTs currently listed to be sold on the marketplace
+    function getHolderNFTs(address holder, bool listedOnly) public view returns (ListedToken[] memory) {
+        require(owner == msg.sender, "Only owner can retrieve holder data");
+
+        uint nftCount = _tokenIds.current();
+        ListedToken[] memory tokens = new ListedToken[](nftCount);
+        uint currentIndex = 0;
+
+        //at the moment currentlyListed is true for all, if it becomes false in the future we will
+        //filter out currentlyListed == false over here
+        for(uint i=0;i<nftCount;i++)
+        {
+            uint currentId = i + 1;
+            ListedToken storage currentItem = idToListedToken[currentId];
+
+            if (listedOnly && currentItem.currentlyListed && (currentItem.owner == holder || currentItem.seller == holder)) {
+                // get listed item only
+                tokens[currentIndex] = currentItem;
+            } else if (!listedOnly && (currentItem.owner == holder || currentItem.seller == holder)) {
+                // get all item
+                tokens[currentIndex] = currentItem;
+            }
+
             currentIndex += 1;
         }
         //the array 'tokens' has the list of all NFTs in the marketplace

@@ -18,10 +18,16 @@ const MarketplaceContract = require("../artifacts/contracts/NFTMarketplace.sol/N
 let chains = isTestnet ? require("../config/testnet.json") : require("../config/local.json");
 
 // get chains
-const chainName = ["Moonbeam", "Avalanche", "BscTest", "Mumbai"];
+const chainName = ["Moonbeam", "Avalanche", "BscTest", "Mumbai", "Fantom"];
 // const chainName = ["Moonbeam", "Avalanche"];
 // const chainName = ["Avalanche", "BscTest"];
-const tokenUrl = ["https://api.npoint.io/efaecf7cee7cfe142516", "https://api.npoint.io/7a8a7902a4ee5625dec2", "https://api.npoint.io/efaecf7cee7cfe142516", "https://api.npoint.io/7a8a7902a4ee5625dec2",];
+const tokenUrl = [
+    "https://api.onenft.shop/metadata/037e7c3068fd135337829a585ebde17c",
+    "https://api.onenft.shop/metadata/a3e8cd74020705eef14d1920f591348d",
+    "https://api.onenft.shop/metadata/b9cb5c0e9d6f414b1cde709277f90334",
+    "https://api.onenft.shop/metadata/a3e8cd74020705eef14d1920f591348d",
+    "https://api.onenft.shop/metadata/b9cb5c0e9d6f414b1cde709277f90334"
+];
 const chainInfo: any = [];
 
 async function deploy(chain: any, tokenUrl: string) {

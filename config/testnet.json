@@ -13,10 +13,9 @@
     "tokens": {
       "aUSDC": "aUSDC"
     },
-    "messageSender": "0x797DA68eFCc022df34a634a74F2a4AcB2210c24C",
-    "messageReceiver": "0x623c73BEe533411F71A033bfdb63Fd6143A73cb2",
-    "nftMarketplace": "0x18C657e646386Bc7776e70b4291975A99CDe3cFB",
-    "receiverMock": "0x49d616DE7DCfe6bD1804dedBFc2c7de32201a830"
+    "messageSender": "0x7e2990415BecD57F52cE2162Ca21C4f7cC685003",
+    "messageReceiver": "0x4E4d5fd8372F05cACE937127DAb1638fb341ba7B",
+    "nftMarketplace": "0x89a06c7A6ae0113632A01cEd24495604DA108fa4"
   },
   {
     "name": "Avalanche",
@@ -32,10 +31,9 @@
     "tokens": {
       "aUSDC": "aUSDC"
     },
-    "messageSender": "0x484924e664c20FA525606Df8BfDDC658ed6D3FA2",
-    "messageReceiver": "0xfB1Ab4c768B3049A04A45F2f6BCC6FE0C7036729",
-    "nftMarketplace": "0x0E7a28fE7a19d8e578d8AD14b4F59be899524e72",
-    "receiverMock": "0x4B090ae56afCdfaD90D7A34860B8bBf416D1E6De"
+    "messageSender": "0x6f6A2fEeC4a2436C44e1956482c824Ca8F1F54C2",
+    "messageReceiver": "0x25e565d569BEf9baE30EcC963e38eA3C2407b634",
+    "nftMarketplace": "0xe92cA4Db3c91A010F0472061cB26Ab1d8ae40724"
   },
   {
     "name": "BscTest",
@@ -51,10 +49,9 @@
     "tokens": {
       "aUSDC": "aUSDC"
     },
-    "messageSender": "0xBBCfaCC1e911dFc9A2C5dF0AC41457789ecF1dC2",
-    "messageReceiver": "0x1519FA548320cD19F6037255183B1E0657F9A954",
-    "nftMarketplace": "0xb3B7B6115875343a11920fE7739d4bB5B4D7C06E",
-    "receiverMock": "0x5a611bD7ecE9104aAD4e2f3B14f720108E4F32a3"
+    "messageSender": "0xB594Ce6C4d6B2383905A7bCaa1E918919ae3F654",
+    "messageReceiver": "0x810fAC051229cc9d77EDE88080A08343529bb2E2",
+    "nftMarketplace": "0x0DBACd0924dCcE6eE085ca96ebd32f9ebd4509eF"
   },
   {
     "name": "Mumbai",
@@ -70,9 +67,26 @@
     "tokens": {
       "aUSDC": "aUSDC"
     },
-    "messageSender": "0xe154Ba463488AfE26f001b0Db09008d55A822741",
-    "messageReceiver": "0xe13e973E4B64531314b12d9F71dEE0DAbc2E57F0",
-    "nftMarketplace": "0xf0f1fae41B0d825EbC747579192D066653E358f5",
-    "receiverMock": "0x2fA458f0a39C04BeC6501F49Ff3F48586A218dc7"
+    "messageSender": "0xF9c072eb54f4C3542bD2CF62Ea4b32545ea93Fbc",
+    "messageReceiver": "0x8b7D560896f54996C5b70Eb73F36e519301FA9B1",
+    "nftMarketplace": "0x4Be94D61Ab11d5dbEBb36e4665981808CFecF347"
+  },
+  {
+    "name": "Fantom",
+    "chainId": 4002,
+    "rpc": "https://rpc.ankr.com/fantom_testnet",
+    "gateway": "0x97837985Ec0494E7b9C71f5D3f9250188477ae14",
+    "gasReceiver": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
+    "tokenName": "FTM",
+    "tokenSymbol": "FTM",
+    "executableSample": "0x9372350Abb3B5c10DB1BB858e0bCf91eFa74d946",
+    "constAddressDeployer": "0x98b2920d53612483f91f12ed7754e51b4a77919e",
+    "crossChainToken": "0x75Cc4fDf1ee3E781C1A3Ee9151D5c6Ce34Cf5C61",
+    "tokens": {
+      "aUSDC": "aUSDC"
+    },
+    "messageSender": "0xF5Ac00cE71e1F16bDc1eCE3a21951237db723b17",
+    "messageReceiver": "0x106b0f43dcF14e4B045022Ad95191d1849BB1d44",
+    "nftMarketplace": "0xED32E0149996f545469B3eFd3c0c227711d76F92"
   }
 ]
