@@ -19,14 +19,13 @@ let chains = isTestnet ? require("../config/testnet.json") : require("../config/
 
 // get chains
 const chainName = ["Moonbeam", "Avalanche", "BscTest", "Mumbai", "Fantom"];
-// const chainName = ["Moonbeam", "Avalanche"];
-// const chainName = ["Avalanche", "BscTest"];
+// const chainName = ["Mumbai"];
 const tokenUrl = [
     "https://api.onenft.shop/metadata/037e7c3068fd135337829a585ebde17c",
     "https://api.onenft.shop/metadata/a3e8cd74020705eef14d1920f591348d",
-    "https://api.onenft.shop/metadata/b9cb5c0e9d6f414b1cde709277f90334",
-    "https://api.onenft.shop/metadata/a3e8cd74020705eef14d1920f591348d",
-    "https://api.onenft.shop/metadata/b9cb5c0e9d6f414b1cde709277f90334"
+    "https://api.onenft.shop/metadata/c8fc85bd753c79f3ba0b8e9028c6fb66",
+    "https://api.onenft.shop/metadata/696e7b1aa0fa2369077a9dcefdf1fc08",
+    "https://api.onenft.shop/metadata/80029f46fef3ed6d3c6e036d3ce570d8"
 ];
 const chainInfo: any = [];
 

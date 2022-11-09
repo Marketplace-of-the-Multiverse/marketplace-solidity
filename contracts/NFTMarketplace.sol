@@ -162,7 +162,7 @@ contract NFTMarketplace is ReentrancyGuard, ERC721URIStoragePermit {
         address payable seller;
         uint256 price;
         bool currentlyListed;
-        string metadata;
+        string tokenURI;
         uint256 reservedUntil;
         address lastReservedBy;
     }
@@ -174,7 +174,7 @@ contract NFTMarketplace is ReentrancyGuard, ERC721URIStoragePermit {
         address seller,
         uint256 price,
         bool currentlyListed,
-        string metadata,
+        string tokenURI,
         uint256 reservedUntil,
         address lastReservedBy
     );
@@ -272,7 +272,7 @@ contract NFTMarketplace is ReentrancyGuard, ERC721URIStoragePermit {
         _setTokenURI(newTokenId, tokenURI);
 
         //Helper function to update Global variables and emit an event
-        createListedToken(newTokenId, floorPrice, recipient);
+        createListedToken(newTokenId, floorPrice, recipient, tokenURI);
     }
 
     //The first time a token is created, it is listed here
@@ -288,12 +288,12 @@ contract NFTMarketplace is ReentrancyGuard, ERC721URIStoragePermit {
         _setTokenURI(newTokenId, tokenURI);
 
         //Helper function to update Global variables and emit an event
-        createListedToken(newTokenId, floorPrice, msg.sender);
+        createListedToken(newTokenId, floorPrice, msg.sender, tokenURI);
 
         return newTokenId;
     }
 
-    function createListedToken(uint256 tokenId, uint256 price, address seller) private {
+    function createListedToken(uint256 tokenId, uint256 price, address seller, string memory tokenURI) private {
         //Make sure the sender sent enough ETH to pay for listing
         // require(msg.value >= listPrice, "Hopefully sending the correct price");
         //Just sanity check
@@ -306,7 +306,7 @@ contract NFTMarketplace is ReentrancyGuard, ERC721URIStoragePermit {
             payable(seller),
             price,
             false,
-            tokenURI(tokenId),
+            tokenURI,
             block.timestamp,
             address(0x0)
         );
@@ -328,13 +328,14 @@ contract NFTMarketplace is ReentrancyGuard, ERC721URIStoragePermit {
         safeTransferFromWithPermit(recipient, address(this), tokenId, deadline, signature);
 
         //Emit the event for successful transfer. The frontend parses this message and updates the end user
+        string memory tokenURI = tokenURI(tokenId);
         emit TokenListedSuccess(
             tokenId,
             address(this),
             recipient,
             price,
             true,
-            tokenURI(tokenId),
+            tokenURI,
             block.timestamp,
             address(0x0)
         );
@@ -358,13 +359,14 @@ contract NFTMarketplace is ReentrancyGuard, ERC721URIStoragePermit {
         approve(address(this), tokenId);
         _transfer(seller, address(this), tokenId);
         //Emit the event for successful transfer. The frontend parses this message and updates the end user
+        string memory tokenURI = tokenURI(tokenId);
         emit TokenListedSuccess(
             tokenId,
             address(this),
             seller,
             price,
             true,
-            tokenURI(tokenId),
+            tokenURI,
             block.timestamp,
             address(0x0)
         );
