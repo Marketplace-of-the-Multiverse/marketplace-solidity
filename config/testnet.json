@@ -13,9 +13,9 @@
     "tokens": {
       "aUSDC": "aUSDC"
     },
-    "messageSender": "0x390711551C30EA4c51462a645e63D204589fA898",
-    "messageReceiver": "0x02797822F6500BC4533c2D69e60372800E65Cd91",
-    "nftMarketplace": "0xFA4e85f812bcb04eACae3f9D612B4Ff135e96560"
+    "messageSender": "0x4B090ae56afCdfaD90D7A34860B8bBf416D1E6De",
+    "messageReceiver": "0x0E7a28fE7a19d8e578d8AD14b4F59be899524e72",
+    "nftMarketplace": "0xE402F1CEec34b639c4dB8B9Ab7ed75414bf7e3B0"
   },
   {
     "name": "Avalanche",
@@ -31,9 +31,9 @@
     "tokens": {
       "aUSDC": "aUSDC"
     },
-    "messageSender": "0x0dc356f5E74f86434b9Cc9fbAd0A9C87B35d5342",
-    "messageReceiver": "0xA370473c98400C68c3C3c1B3407c9086e70F5f78",
-    "nftMarketplace": "0xe2c142e209DeD22fB0d36f149d0803b119Bef4DA"
+    "messageSender": "0x7e50DD167eD5FD1e45Baf7c5C87142a96ed0c8B5",
+    "messageReceiver": "0x156cE9304b9e28c93c02C4BfeFbD09e41b541b94",
+    "nftMarketplace": "0x4a48877DD59A2E601d8E225Ccd05D4E7d03d094D"
   },
   {
     "name": "BscTest",
@@ -49,9 +49,9 @@
     "tokens": {
       "aUSDC": "aUSDC"
     },
-    "messageSender": "0xA370473c98400C68c3C3c1B3407c9086e70F5f78",
-    "messageReceiver": "0xe2c142e209DeD22fB0d36f149d0803b119Bef4DA",
-    "nftMarketplace": "0x51cB25A6F9015aC2b74Cd6a064475028441dEc1b"
+    "messageSender": "0x8571E0Cbdc2CB33FfD8F3344f6072e4667991aA3",
+    "messageReceiver": "0xE69Db53ac6111Ee9dbd3A15Fc6aCDF67e22DC338",
+    "nftMarketplace": "0x906A2bE621A04e08e2e304F54C3e1866E28DbF27"
   },
   {
     "name": "Mumbai",
@@ -67,9 +67,9 @@
     "tokens": {
       "aUSDC": "aUSDC"
     },
-    "messageSender": "0x25129E6e91b4d7b4871F5418e0C750aAc125E383",
-    "messageReceiver": "0x45097d009205C7A78FEDd4DCE8199DaDE3A05232",
-    "nftMarketplace": "0xdBf3A9C53034a1a72DE9899E67b2D72280EE8A98"
+    "messageSender": "0x8cDA877E86ab3B49181cbc418Af59761aeAD83a4",
+    "messageReceiver": "0xBBCfaCC1e911dFc9A2C5dF0AC41457789ecF1dC2",
+    "nftMarketplace": "0x1519FA548320cD19F6037255183B1E0657F9A954"
   },
   {
     "name": "Fantom",
@@ -85,8 +85,8 @@
     "tokens": {
       "aUSDC": "aUSDC"
     },
-    "messageSender": "0xCc1283636802448d92D2bfCEC3e6ac5925Ac6EdA",
-    "messageReceiver": "0x4b189a0dcFbFAFE7f055f5543f16a89F41084926",
-    "nftMarketplace": "0x0F22AD9ba989D2F4F22314eB7eea778eF5d527a7"
+    "messageSender": "0xfaDAa0Ea134A095a6DafDAfc6fF36812f29e240f",
+    "messageReceiver": "0x2BBf0108e04599bc581C28E519ddb61324A0b8B9",
+    "nftMarketplace": "0x6e56C8faAf544aAdB3ffa5fFa38A4d463329852B"
   }
 ]

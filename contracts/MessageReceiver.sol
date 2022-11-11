@@ -13,8 +13,6 @@ struct ListedToken {
     uint256 price;
     bool currentlyListed;
     string tokenURI;
-    uint256 reservedUntil;
-    address lastReservedBy;
 }
 
 // https://ethereum.stackexchange.com/questions/24713/how-can-a-deployed-contract-call-another-deployed-contract-by-interface-and-ad
@@ -129,11 +127,6 @@ contract MessageReceiver is AxelarExecutable {
             // stop purchasing off list nft
             axlToken.transfer(recipient, amount);
             emit Failed("Nft is not on sale");
-
-        } else if (targetToken.reservedUntil < block.timestamp && recipient == targetToken.lastReservedBy) {
-            // prevent contract call by non-reserved person before the reservedUtil expired
-            axlToken.transfer(recipient, amount);
-            emit Failed("NFT is currently reserved by someone else");
 
         } else {
             //Transfer the proceeds from the sale to the seller of the NFT

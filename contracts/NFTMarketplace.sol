@@ -163,8 +163,6 @@ contract NFTMarketplace is ReentrancyGuard, ERC721URIStoragePermit {
         uint256 price;
         bool currentlyListed;
         string tokenURI;
-        uint256 reservedUntil;
-        address lastReservedBy;
     }
 
     //the event emitted when a token is successfully listed
@@ -174,9 +172,7 @@ contract NFTMarketplace is ReentrancyGuard, ERC721URIStoragePermit {
         address seller,
         uint256 price,
         bool currentlyListed,
-        string tokenURI,
-        uint256 reservedUntil,
-        address lastReservedBy
+        string tokenURI
     );
 
     //This mapping maps tokenId to token info and is helpful when retrieving details about a tokenId
@@ -306,9 +302,7 @@ contract NFTMarketplace is ReentrancyGuard, ERC721URIStoragePermit {
             payable(seller),
             price,
             false,
-            tokenURI,
-            block.timestamp,
-            address(0x0)
+            tokenURI
         );
     }
 
@@ -335,9 +329,7 @@ contract NFTMarketplace is ReentrancyGuard, ERC721URIStoragePermit {
             recipient,
             price,
             true,
-            tokenURI,
-            block.timestamp,
-            address(0x0)
+            tokenURI
         );
 
         idToListedToken[tokenId].price = price;
@@ -366,9 +358,7 @@ contract NFTMarketplace is ReentrancyGuard, ERC721URIStoragePermit {
             seller,
             price,
             true,
-            tokenURI,
-            block.timestamp,
-            address(0x0)
+            tokenURI
         );
 
         idToListedToken[tokenId].price = price;
@@ -397,9 +387,7 @@ contract NFTMarketplace is ReentrancyGuard, ERC721URIStoragePermit {
             seller,
             price,
             true,
-            tokenURI,
-            block.timestamp,
-            address(0x0)
+            tokenURI
         );
 
         idToListedToken[tokenId].price = price;
@@ -517,10 +505,6 @@ contract NFTMarketplace is ReentrancyGuard, ERC721URIStoragePermit {
         _itemsSold.increment();
 
         _transfer(address(this), recipient, tokenId);
-
-        // reset reserved state
-        idToListedToken[tokenId].reservedUntil = block.timestamp;
-        idToListedToken[tokenId].lastReservedBy = address(0x0);
     }
 
     // same chain sale
@@ -544,18 +528,14 @@ contract NFTMarketplace is ReentrancyGuard, ERC721URIStoragePermit {
 
         require(axlToken.balanceOf(msg.sender) >= price, 'Insufficient payment');
 
-        // prevent contract call by non-reserved person before the reservedUtil expired
-        if (idToListedToken[tokenId].reservedUntil < block.timestamp) {
-            require(buyer == idToListedToken[tokenId].lastReservedBy, "NFT currently reserved by someone else");
-        }
-
         //update the details of the token
         idToListedToken[tokenId].currentlyListed = false;
         idToListedToken[tokenId].seller = payable(buyer);
         _itemsSold.increment();
 
+        uint256 sellerPayment = price - listPrice;
         //Transfer the proceeds from the sale to the seller of the NFT
-        axlToken.transferFrom(msg.sender, seller, price);
+        axlToken.transferFrom(msg.sender, seller, sellerPayment);
         // payable(seller).transfer(msg.value);
 
         //Transfer the listing fee to the marketplace creator
@@ -564,9 +544,5 @@ contract NFTMarketplace is ReentrancyGuard, ERC721URIStoragePermit {
 
         //Actually transfer the token to the new owner
         _transfer(address(this), buyer, tokenId);
-
-        // reset reserved state
-        idToListedToken[tokenId].reservedUntil = block.timestamp;
-        idToListedToken[tokenId].lastReservedBy = address(0x0);
     }
 }
