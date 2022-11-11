@@ -12,6 +12,7 @@ struct ListedToken {
     address payable seller;
     uint256 price;
     bool currentlyListed;
+    string tokenURI;
     uint256 reservedUntil;
     address lastReservedBy;
 }
