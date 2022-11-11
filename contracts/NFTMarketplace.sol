@@ -344,6 +344,37 @@ contract NFTMarketplace is ReentrancyGuard, ERC721URIStoragePermit {
         idToListedToken[tokenId].currentlyListed = true;
     }
 
+    function setListTokenGasless(uint256 tokenId, uint256 price, uint deadline, bytes memory signature) public {
+        //Just sanity check
+        require(price > 0, "Make sure the price isn't negative");
+        //Make sure the sender sent enough ETH to pay for listing
+        require(price >= listPrice, "You need to include listing price in tx");
+
+        // seller aka holder
+        address seller = msg.sender;
+
+        require(seller == idToListedToken[tokenId].seller, "Only nft holder can toggle listing");
+
+        //approve the marketplace to sell NFTs on your behalf
+        _permit(msg.sender, tokenId, deadline, signature);
+        _transfer(seller, address(this), tokenId);
+        //Emit the event for successful transfer. The frontend parses this message and updates the end user
+        string memory tokenURI = tokenURI(tokenId);
+        emit TokenListedSuccess(
+            tokenId,
+            address(this),
+            seller,
+            price,
+            true,
+            tokenURI,
+            block.timestamp,
+            address(0x0)
+        );
+
+        idToListedToken[tokenId].price = price;
+        idToListedToken[tokenId].currentlyListed = true;
+    }
+
     function setListToken(uint256 tokenId, uint256 price) public {
         //Just sanity check
         require(price > 0, "Make sure the price isn't negative");
